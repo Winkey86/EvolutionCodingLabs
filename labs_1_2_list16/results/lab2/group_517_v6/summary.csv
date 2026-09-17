@@ -1,0 +1,5 @@
+method,best_fitness,mean_fitness,median_fitness,std_fitness,worst_fitness,feasible_rate
+repair_uniform_step,-12473,-12469.15,-12468.0,3.869924519867756,-12456,1.0
+penalty_uniform_step,-12393,-12271.2,-12279.5,76.38724059891017,-12104,1.0
+repair_one_point_reset,-12473,-12435.8,-12443.0,30.48830664542167,-12371,1.0
+constructive_baseline,-12467,-12467,-12467,0.0,-12467,1.0
