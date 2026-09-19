@@ -1,0 +1,6 @@
+method,best_fitness,mean_fitness,median_fitness,std_fitness,worst_fitness,best_utility,mean_utility,feasible_rate
+repair_uniform,-12473,-12469.15,-12468.0,3.869924519867756,-12456,12473,12469.15,1.0
+penalty_uniform,-12368,-12213.8,-12197.0,79.64103676398308,-12010,12368,12213.8,1.0
+repair_one_point,-12477,-12467.45,-12468.0,6.847781046671827,-12444,12477,12467.45,1.0
+random_feasible_search,-11344,-11047.45,-11050.0,115.44626227680223,-10861,11344,11047.45,1.0
+greedy_constructive,-12467,-12467,-12467,0.0,-12467,12467,12467,1.0
