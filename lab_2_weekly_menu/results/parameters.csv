@@ -1,0 +1,4 @@
+method,population,generations,evaluation_budget,selection,crossover,crossover_probability,mutation_probability,gene_mutation_probability,constraint_handling,calorie_penalty,overspend_penalty,structural_penalty,elitism
+repair_uniform,80,180,14300,tournament_3,uniform,0.9,0.25,0.08,repair,1000,1000,3000,1
+penalty_uniform,80,180,14300,tournament_3,uniform,0.9,0.25,0.08,penalty,1000,1000,3000,1
+repair_one_point,80,180,14300,tournament_3,one_point,0.9,0.25,0.08,repair,1000,1000,3000,1

@@ -16,6 +16,7 @@ d = 7,  −15 ≤ xᵢ ≤ 15.
 ## Запуск
 
 ```bash
+cd lab_1_hgbat
 python3 main.py
 ```
 
@@ -28,3 +29,11 @@ python3 main.py --runs 20 --evaluations 12000 --output results
 ```
 
 Сторонние пакеты не требуются.
+
+## Результаты
+
+- [Отчёт](results/REPORT.md)
+- [Параметры эксперимента](results/parameters.csv)
+- [Результаты всех запусков](results/runs.csv)
+- [Сводная статистика](results/summary.csv)
+- [График сходимости](results/convergence.svg)

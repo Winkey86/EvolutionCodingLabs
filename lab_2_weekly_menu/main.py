@@ -21,6 +21,9 @@ MAX_DAILY_CALORIES = 2200
 WEEKLY_BUDGET = 3800
 MIN_UNIQUE_DISHES = 15
 MAX_REPETITIONS = 2
+CALORIE_PENALTY = 1000
+COST_PENALTY = 1000
+STRUCTURAL_PENALTY = 3000
 
 
 @dataclass(frozen=True)
@@ -99,7 +102,10 @@ def random_individual(allowed: Sequence[Sequence[int]], rng: random.Random) -> l
     return [rng.choice(options) for options in allowed]
 
 
-def evaluate(individual: Sequence[int], dishes: Sequence[Dish]) -> Evaluation:
+def constraint_metrics(
+    individual: Sequence[int], dishes: Sequence[Dish]
+) -> tuple[int, int, int, int, int, int]:
+    """Нарушения калорийности, разнообразия, повторов и бюджета."""
     selected = [dishes[index] for index in individual]
     daily = [sum(dish.calories for dish in selected[day * 3:day * 3 + 3]) for day in range(DAYS)]
     calorie_violation = sum(
@@ -111,32 +117,54 @@ def evaluate(individual: Sequence[int], dishes: Sequence[Dish]) -> Evaluation:
     variety_shortage = max(0, MIN_UNIQUE_DISHES - unique_dishes)
     repeat_excess = sum(max(0, count - MAX_REPETITIONS) for count in counts.values())
     cost = sum(dish.cost for dish in selected)
-    utility = sum(dish.score for dish in selected)
     overspend = max(0, cost - WEEKLY_BUDGET)
+    return calorie_violation, variety_shortage, repeat_excess, overspend, unique_dishes, cost
+
+
+def evaluate(individual: Sequence[int], dishes: Sequence[Dish]) -> Evaluation:
+    calorie_violation, variety_shortage, repeat_excess, overspend, unique_dishes, cost = (
+        constraint_metrics(individual, dishes)
+    )
+    utility = sum(dishes[index].score for index in individual)
     feasible = not (calorie_violation or variety_shortage or repeat_excess or overspend)
-    penalty = 20 * calorie_violation + 30 * overspend + 1000 * (variety_shortage + repeat_excess)
+    penalty = (
+        CALORIE_PENALTY * calorie_violation
+        + COST_PENALTY * overspend
+        + STRUCTURAL_PENALTY * (variety_shortage + repeat_excess)
+    )
     return Evaluation(-utility + penalty, utility, cost, feasible, calorie_violation,
                       variety_shortage, repeat_excess, overspend, unique_dishes)
 
 
 def repair(individual: Sequence[int], dishes: Sequence[Dish],
            allowed: Sequence[Sequence[int]], rng: random.Random) -> list[int]:
-    """Возвращает допустимое меню; исходную особь сохраняет, если она допустима."""
+    """Восстанавливает допустимость, не используя значение целевой функции."""
     candidate = [gene if gene in allowed[index] else rng.choice(allowed[index])
                  for index, gene in enumerate(individual)]
-    if evaluate(candidate, dishes).feasible:
+    if not any(constraint_metrics(candidate, dishes)[:4]):
         return candidate
-    best, best_eval = candidate[:], evaluate(candidate, dishes)
-    # Для этой задачи допустимые случайные меню встречаются часто. Выбираем лучшее
-    # допустимое из серии проб — это простой и воспроизводимый оператор ремонта.
-    for _ in range(600):
+
+    def violation(menu: Sequence[int]) -> int:
+        calories, variety, repeats, overspend, _, _ = constraint_metrics(menu, dishes)
+        return calories + 100 * (variety + repeats) + overspend
+
+    # Сначала сохраняем как можно больше генов потомка и заменяем по одному блюду.
+    for _ in range(500):
+        if not any(constraint_metrics(candidate, dishes)[:4]):
+            return candidate
+        trial = candidate[:]
+        position = rng.randrange(len(trial))
+        trial[position] = rng.choice(allowed[position])
+        if violation(trial) <= violation(candidate) or rng.random() < 0.1:
+            candidate = trial
+
+    # Гарантированный для подготовленного экземпляра запасной способ —
+    # специализированная генерация до первого допустимого меню.
+    for _ in range(100_000):
         trial = random_individual(allowed, rng)
-        result = evaluate(trial, dishes)
-        if result.feasible:
+        if not any(constraint_metrics(trial, dishes)[:4]):
             return trial
-        if result.fitness < best_eval.fitness:
-            best, best_eval = trial, result
-    return best
+    raise RuntimeError("Не удалось построить допустимое меню для заданных ограничений")
 
 
 def crossover(left: Sequence[int], right: Sequence[int], kind: str,
@@ -174,6 +202,7 @@ def genetic_algorithm(config: Config, dishes: Sequence[Dish], generations: int,
 
     for _ in range(generations):
         elite_index = min(range(len(population)), key=lambda index: evaluations[index].fitness)
+        elite_evaluation = evaluations[elite_index]
         next_population = [population[elite_index][:]]
         while len(next_population) < config.population_size:
             parent_a = tournament(population, evaluations, rng)
@@ -186,8 +215,9 @@ def genetic_algorithm(config: Config, dishes: Sequence[Dish], generations: int,
                 child = repair(child, dishes, allowed, rng)
             next_population.append(child)
         population = next_population
-        evaluations = [evaluate(individual, dishes) for individual in population]
-        evaluation_count += len(population) - 1
+        child_evaluations = [evaluate(individual, dishes) for individual in population[1:]]
+        evaluations = [elite_evaluation, *child_evaluations]
+        evaluation_count += len(child_evaluations)
         trajectory.append(min(result.fitness for result in evaluations))
 
     best_index = min(range(len(population)), key=lambda index: evaluations[index].fitness)
@@ -233,6 +263,12 @@ def save_instance(data_dir: Path, dishes: Sequence[Dish]) -> None:
         "weekly_budget": WEEKLY_BUDGET,
         "minimum_unique_dishes": MIN_UNIQUE_DISHES,
         "maximum_repetitions": MAX_REPETITIONS,
+        "objective": "maximize_total_score",
+        "penalty_weights": {
+            "calorie_violation": CALORIE_PENALTY,
+            "overspend": COST_PENALTY,
+            "variety_or_repeat": STRUCTURAL_PENALTY,
+        },
     }
     (data_dir / "config.json").write_text(
         json.dumps(config, ensure_ascii=False, indent=2), encoding="utf-8")
@@ -277,6 +313,19 @@ def run_experiment(runs: int, generations: int, output: Path, data_dir: Path) ->
         Config("penalty_uniform", "penalty", "uniform"),
         Config("repair_one_point", "repair", "one_point"),
     )
+    write_csv(
+        output / "parameters.csv",
+        ["method", "population", "generations", "evaluation_budget", "selection",
+         "crossover", "crossover_probability", "mutation_probability",
+         "gene_mutation_probability", "constraint_handling", "calorie_penalty",
+         "overspend_penalty", "structural_penalty", "elitism"],
+        [[config.name, config.population_size, generations,
+          config.population_size + generations * (config.population_size - 1),
+          "tournament_3", config.crossover, config.crossover_probability,
+          config.mutation_probability, config.gene_mutation_probability,
+          config.constraint_mode, CALORIE_PENALTY, COST_PENALTY,
+          STRUCTURAL_PENALTY, 1] for config in configs],
+    )
     by_method = {
         config.name: [genetic_algorithm(config, dishes, generations,
                                         2_000_000 + index * 10_000 + run)
@@ -312,6 +361,12 @@ def run_experiment(runs: int, generations: int, output: Path, data_dir: Path) ->
     write_csv(output / "summary.csv",
               ["method", "best_fitness", "mean_fitness", "median_fitness", "std_fitness",
                "worst_fitness", "best_utility", "mean_utility", "feasible_rate"], summary_rows)
+
+    summary_by_method = {row[0]: row for row in summary_rows}
+    repair_mean = float(summary_by_method["repair_uniform"][2])
+    penalty_mean = float(summary_by_method["penalty_uniform"][2])
+    one_point_mean = float(summary_by_method["repair_one_point"][2])
+    random_mean = float(summary_by_method["random_feasible_search"][2])
 
     ga_results = [result for config in configs for result in by_method[config.name]]
     feasible = [result for result in ga_results if result.evaluation.feasible]
@@ -353,13 +408,31 @@ def run_experiment(runs: int, generations: int, output: Path, data_dir: Path) ->
 
 ## Вариант и постановка
 
-Вариант 20, группа 517, номер в списке 18: меню на неделю с ограничениями калорийности, стоимости и разнообразия. Используются 36 блюд с фиксированным `seed={DATA_SEED}`.
+Вариант 20, группа 517, номер в списке 18: меню на неделю с ограничениями калорийности, стоимости и разнообразия. Используются 36 синтетических блюд: по 12 вариантов завтрака, обеда и ужина. Данные генерируются с фиксированным `seed={DATA_SEED}`; диапазоны калорийности и стоимости заданы отдельно для каждого типа приёма пищи, оценка блюда генерируется в диапазоне 55–100. Полные данные находятся в [dishes.csv](../data/dishes.csv), параметры экземпляра — в [config.json](../data/config.json).
 
-Особь — целочисленный вектор из 21 индекса блюда: завтрак, обед и ужин для каждого дня. Суточная калорийность — {MIN_DAILY_CALORIES}–{MAX_DAILY_CALORIES} ккал, недельная стоимость — не более {WEEKLY_BUDGET}, различных блюд — не менее {MIN_UNIQUE_DISHES}, повтор блюда — не более {MAX_REPETITIONS} раз. Максимизируется суммарная оценка блюд.
+Особь — целочисленный вектор из 21 индекса блюда: завтрак, обед и ужин для каждого дня. Декодер сопоставляет позицию вектора дню и типу приёма пищи, а индекс — строке таблицы блюд. Суточная калорийность — {MIN_DAILY_CALORIES}–{MAX_DAILY_CALORIES} ккал, недельная стоимость — не более {WEEKLY_BUDGET}, различных блюд — не менее {MIN_UNIQUE_DISHES}, повтор блюда — не более {MAX_REPETITIONS} раз. Максимизируется суммарная оценка блюд; для минимизации используется её отрицание и штраф за нарушения.
 
 ## Алгоритм
 
-Популяция — 80, поколений — {generations}, турнирная селекция размера 3, вероятность кроссовера — 0.9, вероятность применения мутации — 0.25, элитизм — одна особь. Сравниваются ремонт и штраф ограничений, а также равномерный и одноточечный кроссоверы. Случайный допустимый поиск получает тот же бюджет — {equal_budget} оценок.
+Популяция — 80, поколений — {generations}, турнирная селекция размера 3, вероятность кроссовера — 0.9, вероятность применения мутации — 0.25, вероятность замены отдельного блюда при мутации — 0.08, элитизм — одна особь. Коэффициенты штрафа: 1000 за единицу отклонения калорийности или превышения бюджета и 3000 за недостающее уникальное блюдо или лишний повтор. При диапазоне оценок 55–100 даже минимальное нарушение дороже любого возможного выигрыша целевой функции. Полная таблица находится в [parameters.csv](parameters.csv).
+
+Операторы учитывают структуру меню: мутация выбирает блюдо только допустимого типа для конкретного слота; кроссоверы работают между одинаковыми позициями дней и приёмов пищи. Сравниваются восстановление допустимости и штрафы при одинаковом равномерном кроссовере, затем равномерный и одноточечный кроссоверы при одинаковом восстановлении. Восстановление изменяет недопустимого потомка до выполнения всех ограничений и не использует целевую оценку. Случайный допустимый поиск получает тот же бюджет — {equal_budget} обращений к фитнес-функции.
+
+```mermaid
+flowchart TD
+    A[Генерация целочисленной популяции] --> B[Декодирование меню]
+    B --> C[Проверка ограничений и фитнес]
+    C --> D[Турнирная селекция]
+    D --> E[Равномерный или одноточечный кроссовер]
+    E --> F[Замена блюда того же типа]
+    F --> G[Восстановление или штраф]
+    G --> H[Элитизм и новая популяция]
+    H --> I{{Завершены поколения?}}
+    I -- нет --> B
+    I -- да --> J[Лучшее допустимое меню]
+```
+
+Два допустимых и два недопустимых решения с расшифровкой каждого нарушения приведены в [feasibility_examples.csv](feasibility_examples.csv).
 
 ## Результаты {runs} независимых запусков
 
@@ -371,9 +444,11 @@ def run_experiment(runs: int, generations: int, output: Path, data_dir: Path) ->
 
 ## Вывод
 
-Целочисленное кодирование напрямую задаёт блюда по приёмам пищи. Ремонт поддерживает допустимость, штрафной подход допускает недопустимые промежуточные решения, а смена кроссовера показывает влияние оператора. Серия запусков оценивает устойчивость результата.
+Целочисленное кодирование напрямую задаёт блюда по приёмам пищи и исключает неверный тип блюда на уровне операторов. Восстановление с равномерным кроссовером дало средний фитнес `{repair_mean:.2f}`, штрафы — `{penalty_mean:.2f}`, восстановление с одноточечным кроссовером — `{one_point_mean:.2f}`. Различия между вариантами ГА малы, однако все финальные решения допустимы; это показывает устойчивость, а не единичный успех.
 
-Файлы: [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.svg](convergence.svg), [best_menu.csv](best_menu.csv), [feasibility_examples.csv](feasibility_examples.csv).
+Средний фитнес случайного допустимого поиска равен `{random_mean:.2f}`, то есть ГА стабильно находит более высокую суммарную оценку при том же бюджете. Лучшее меню имеет оценку `{best.evaluation.utility}`, выполняет все четыре группы ограничений и понятно представлено по дням в [best_menu.csv](best_menu.csv). Поэтому результат следует считать хорошим для созданного экземпляра; утверждение о глобальном оптимуме не делается, поскольку полный перебор `12²¹` допустимых по типу комбинаций практически невозможен.
+
+Файлы: [parameters.csv](parameters.csv), [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.svg](convergence.svg), [best_menu.csv](best_menu.csv), [feasibility_examples.csv](feasibility_examples.csv).
 """
     (output / "REPORT.md").write_text(report, encoding="utf-8")
 

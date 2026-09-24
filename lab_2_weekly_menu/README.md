@@ -17,6 +17,7 @@
 ## Запуск
 
 ```bash
+cd lab_2_weekly_menu
 python3 main.py
 ```
 
@@ -27,3 +28,14 @@ python3 main.py --runs 20 --generations 180 --output results
 ```
 
 Сторонние пакеты не требуются.
+
+## Результаты
+
+- [Отчёт](results/REPORT.md)
+- [Исходные данные](data/dishes.csv) и [параметры задачи](data/config.json)
+- [Параметры эксперимента](results/parameters.csv)
+- [Результаты всех запусков](results/runs.csv)
+- [Сводная статистика](results/summary.csv)
+- [Лучшее меню](results/best_menu.csv)
+- [Допустимые и недопустимые примеры](results/feasibility_examples.csv)
+- [График сходимости](results/convergence.svg)

@@ -174,7 +174,7 @@ def write_svg(path: Path, minimum: Sequence[float], mean: Sequence[float], maxim
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">',
         '<rect width="100%" height="100%" fill="white"/>',
-        '<text x="480" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold">Сходимость ГА для функции HGBat</text>',
+        '<text x="480" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold">HGBat: GA_sigma_2pct, серия из 20 запусков</text>',
     ]
     for tick in range(6):
         value = y_min + tick * (y_max - y_min) / 5
@@ -213,6 +213,18 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
         Config("GA_sigma_2pct", mutation_scale=0.02),
         Config("GA_sigma_8pct", mutation_scale=0.08),
     )
+    write_csv(
+        output / "parameters.csv",
+        ["method", "population", "evaluation_budget", "crossover_probability",
+         "mutation_probability_per_gene", "mutation_sigma_fraction", "selection",
+         "crossover", "boundary_handling", "elitism"],
+        [[config.name, config.population_size, evaluations_limit,
+          config.crossover_probability, config.mutation_probability,
+          config.mutation_scale, f"tournament_{config.tournament_size}",
+          f"BLX-alpha_{config.blx_alpha}", "clipping", 1]
+         for config in configs]
+        + [["random_search", "", evaluations_limit, "", "", "", "", "", "", ""]],
+    )
     by_method: dict[str, list[RunResult]] = {}
     for config_index, config in enumerate(configs):
         by_method[config.name] = [
@@ -240,6 +252,10 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
     write_svg(output / "convergence.svg", minimum, mean, maximum)
 
     best = min((result for method, results in by_method.items() if method != "random_search" for result in results), key=lambda result: result.value)
+    means = {method: statistics.fmean(result.value for result in results)
+             for method, results in by_method.items()}
+    mutation_improvement = 100 * (means[configs[0].name] - means[configs[1].name]) / means[configs[0].name]
+    random_factor = means["random_search"] / means[configs[1].name]
     table = "\n".join(f"| {row[0]} | " + " | ".join(f"{float(value):.8g}" for value in row[1:]) + " |" for row in summary_rows)
     report = f"""# Отчёт по лабораторной работе №1
 
@@ -253,7 +269,20 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
 
 ## Представление и алгоритм
 
-Генотип и фенотип совпадают: вещественный вектор из семи координат. Использованы равномерная инициализация, турнирная селекция размера 3, BLX-α-кроссовер (`α=0.35`), гауссовская мутация, отсечение координат по границам и элитизм одной особи. Популяция — 60, вероятность кроссовера — 0.9, вероятность мутации каждой координаты — 0.2, бюджет — {evaluations_limit} вычислений функции.
+Пространство решений — `D=[−15,15]⁷`. Генотип и фенотип совпадают: вещественный вектор из семи координат, декодирование не требуется. Равномерная инициализация сразу создаёт допустимые решения.
+
+Турнирная селекция не требует масштабирования значений HGBat. BLX-α-кроссовер работает непосредственно с вещественными координатами и исследует промежуток между родителями и его окрестность. Гауссовская мутация обеспечивает локальное непрерывное изменение, отсечение гарантирует границы, элитизм сохраняет лучшее найденное решение.
+
+| Параметр | Значение |
+|---|---|
+| Популяция | 60 |
+| Селекция | турнир 3 |
+| Кроссовер | BLX-α, `α=0.35`, вероятность 0.9 |
+| Мутация | гауссовская, вероятность каждой координаты 0.2 |
+| Масштаб мутации | 2% или 8% ширины области |
+| Обработка границ | отсечение до `[−15,15]` |
+| Элитизм | 1 особь |
+| Критерий остановки | {evaluations_limit} вычислений функции |
 
 ```mermaid
 flowchart TD
@@ -271,7 +300,7 @@ flowchart TD
 
 ## Эксперимент
 
-Выполнено {runs} независимых запусков. Конфигурации отличаются только масштабом мутации: 2% и 8% ширины области. Случайный поиск получает тот же бюджет вычислений.
+Выполнено {runs} независимых запусков с различными фиксированными seed. Конфигурации отличаются только масштабом мутации: 2% и 8% ширины области. Случайный поиск получает тот же бюджет вычислений. Полная таблица параметров сохранена в [parameters.csv](parameters.csv). На графике сходимости для `GA_sigma_2pct` показаны минимум, среднее и максимум лучшего значения по всем {runs} запускам на каждом поколении.
 
 | Метод | Лучшее | Среднее | Медиана | Ст. отклонение | Худшее |
 |---|---:|---:|---:|---:|---:|
@@ -281,9 +310,11 @@ flowchart TD
 
 ## Вывод
 
-Функция HGBat невыпукла и связывает все координаты через две суммы. Больший масштаб мутации усиливает исследование пространства, меньший — локальное уточнение около найденного минимума. Сравнение статистик показывает устойчивость, а не единичный удачный запуск.
+Функция HGBat невыпукла и несепарабельна: изменение одной координаты одновременно влияет на обе агрегированные суммы, поэтому независимый покоординатный локальный поиск и случайная выборка не используют структуру хороших решений.
 
-Файлы: [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.csv](convergence.csv), [convergence.svg](convergence.svg).
+Масштаб 8% дал среднее значение на `{mutation_improvement:.1f}%` лучше масштаба 2%. Его средний результат лучше случайного поиска примерно в `{random_factor:.1f}` раза. Лучшее значение `{best.value:.6g}` имеет абсолютный разрыв `{best.value:.6g}` до известного оптимума 0: это хороший приближённый результат при заданном бюджете, но не доказательство достижения точного минимума. Вывод подтверждается серией запусков, а не единственной удачной траекторией.
+
+Файлы: [parameters.csv](parameters.csv), [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.csv](convergence.csv), [convergence.svg](convergence.svg).
 """
     (output / "REPORT.md").write_text(report, encoding="utf-8")
 

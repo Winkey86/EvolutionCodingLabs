@@ -7,5 +7,11 @@
   ],
   "weekly_budget": 3800,
   "minimum_unique_dishes": 15,
-  "maximum_repetitions": 2
+  "maximum_repetitions": 2,
+  "objective": "maximize_total_score",
+  "penalty_weights": {
+    "calorie_violation": 1000,
+    "overspend": 1000,
+    "variety_or_repeat": 3000
+  }
 }
