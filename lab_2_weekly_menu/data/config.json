@@ -1,0 +1,11 @@
+{
+  "seed": 20180517,
+  "days": 7,
+  "daily_calories": [
+    1700,
+    2200
+  ],
+  "weekly_budget": 3800,
+  "minimum_unique_dishes": 15,
+  "maximum_repetitions": 2
+}

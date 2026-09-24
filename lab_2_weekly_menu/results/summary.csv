@@ -1,0 +1,5 @@
+method,best_fitness,mean_fitness,median_fitness,std_fitness,worst_fitness,best_utility,mean_utility,feasible_rate
+repair_uniform,-1936,-1936.0,-1936.0,0.0,-1936,1936,1936.0,1.0
+penalty_uniform,-1936,-1935.85,-1936.0,0.36634754853252327,-1935,1936,1935.85,1.0
+repair_one_point,-1936,-1935.75,-1936.0,0.910465468000326,-1932,1936,1935.75,1.0
+random_feasible_search,-1872,-1830.95,-1825.0,16.715813502567908,-1808,1872,1830.95,1.0

@@ -1,4 +1,4 @@
-"""ЛР1, вариант 6: минимизация функции Швефеля генетическим алгоритмом."""
+"""ЛР1, вариант 20: минимизация функции HGBat генетическим алгоритмом."""
 
 from __future__ import annotations
 
@@ -13,10 +13,10 @@ from pathlib import Path
 from typing import Sequence
 
 
-DIMENSION = 5 + 6 % 6  # d = 5
-LOWER_BOUND = -500.0
-UPPER_BOUND = 500.0
-KNOWN_OPTIMUM_X = 420.968746
+DIMENSION = 5 + 20 % 6  # d = 7
+LOWER_BOUND = -15.0
+UPPER_BOUND = 15.0
+KNOWN_OPTIMUM_X = -1.0
 
 
 @dataclass(frozen=True)
@@ -41,11 +41,13 @@ class RunResult:
     trajectory: list[float]
 
 
-def schwefel(vector: Sequence[float]) -> float:
-    """Целевая функция варианта 6 (минимизация)."""
-    return 418.9829 * len(vector) - sum(
-        value * math.sin(math.sqrt(abs(value))) for value in vector
-    )
+def hgbat(vector: Sequence[float]) -> float:
+    """Целевая функция HGBat варианта 20 (минимизация)."""
+    sum_squares = sum(value * value for value in vector)
+    sum_values = sum(vector)
+    return math.sqrt(abs(sum_squares**2 - sum_values**2)) + (
+        0.5 * sum_squares + sum_values
+    ) / len(vector) + 0.5
 
 
 def tournament(
@@ -85,7 +87,7 @@ def genetic_algorithm(config: Config, evaluations_limit: int, seed: int) -> RunR
         [rng.uniform(LOWER_BOUND, UPPER_BOUND) for _ in range(DIMENSION)]
         for _ in range(config.population_size)
     ]
-    scores = [schwefel(individual) for individual in population]
+    scores = [hgbat(individual) for individual in population]
     evaluations = len(population)
     best_index = min(range(len(population)), key=scores.__getitem__)
     best_vector = population[best_index][:]
@@ -109,7 +111,7 @@ def genetic_algorithm(config: Config, evaluations_limit: int, seed: int) -> RunR
             mutate(child, config, rng)
             children.append(child)
 
-        child_scores = [schwefel(child) for child in children]
+        child_scores = [hgbat(child) for child in children]
         evaluations += len(children)
         population = [elite, *children]
         scores = [elite_score, *child_scores]
@@ -137,7 +139,7 @@ def random_search(evaluations_limit: int, seed: int) -> RunResult:
     best_vector: list[float] = []
     for _ in range(evaluations_limit):
         vector = [rng.uniform(LOWER_BOUND, UPPER_BOUND) for _ in range(DIMENSION)]
-        value = schwefel(vector)
+        value = hgbat(vector)
         if value < best_value:
             best_value, best_vector = value, vector
     return RunResult(
@@ -149,7 +151,7 @@ def random_search(evaluations_limit: int, seed: int) -> RunResult:
 def write_csv(path: Path, header: Sequence[str], rows: Sequence[Sequence[object]]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     with path.open("w", encoding="utf-8", newline="") as stream:
-        writer = csv.writer(stream)
+        writer = csv.writer(stream, lineterminator="\n")
         writer.writerow(header)
         writer.writerows(rows)
 
@@ -172,7 +174,7 @@ def write_svg(path: Path, minimum: Sequence[float], mean: Sequence[float], maxim
     parts = [
         f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}">',
         '<rect width="100%" height="100%" fill="white"/>',
-        '<text x="480" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold">Сходимость ГА для функции Швефеля</text>',
+        '<text x="480" y="30" text-anchor="middle" font-family="sans-serif" font-size="20" font-weight="bold">Сходимость ГА для функции HGBat</text>',
     ]
     for tick in range(6):
         value = y_min + tick * (y_max - y_min) / 5
@@ -208,8 +210,8 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
         raise ValueError("Бюджет должен быть не меньше размера популяции (60)")
     output.mkdir(parents=True, exist_ok=True)
     configs = (
-        Config("GA_sigma_5pct", mutation_scale=0.05),
-        Config("GA_sigma_15pct", mutation_scale=0.15),
+        Config("GA_sigma_2pct", mutation_scale=0.02),
+        Config("GA_sigma_8pct", mutation_scale=0.08),
     )
     by_method: dict[str, list[RunResult]] = {}
     for config_index, config in enumerate(configs):
@@ -243,15 +245,15 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
 
 ## Вариант и постановка
 
-Вариант 6, группа 517, номер в списке 16. Размерность `d=5`. Минимизируется
+Вариант 20, группа 517, номер в списке 18. Размерность `d=7`. Минимизируется
 
-`f(x) = 418.9829·d − Σ xᵢ sin(√|xᵢ|)` при `−500 ≤ xᵢ ≤ 500`.
+`f(x) = √|(Σxᵢ²)² − (Σxᵢ)²| + (0.5Σxᵢ² + Σxᵢ)/d + 0.5` при `−15 ≤ xᵢ ≤ 15`.
 
-Известный глобальный минимум расположен около `xᵢ=420.968746`, `f(x*)≈0`.
+Известный глобальный минимум расположен в `xᵢ=-1`, `f(x*)=0`.
 
 ## Представление и алгоритм
 
-Генотип и фенотип совпадают: вещественный вектор из пяти координат. Использованы равномерная инициализация, турнирная селекция размера 3, BLX-α-кроссовер (`α=0.35`), гауссовская мутация, отсечение координат по границам и элитизм одной особи. Популяция — 60, вероятность кроссовера — 0.9, вероятность мутации каждой координаты — 0.2, бюджет — {evaluations_limit} вычислений функции.
+Генотип и фенотип совпадают: вещественный вектор из семи координат. Использованы равномерная инициализация, турнирная селекция размера 3, BLX-α-кроссовер (`α=0.35`), гауссовская мутация, отсечение координат по границам и элитизм одной особи. Популяция — 60, вероятность кроссовера — 0.9, вероятность мутации каждой координаты — 0.2, бюджет — {evaluations_limit} вычислений функции.
 
 ```mermaid
 flowchart TD
@@ -269,7 +271,7 @@ flowchart TD
 
 ## Эксперимент
 
-Выполнено {runs} независимых запусков. Конфигурации отличаются только масштабом мутации: 5% и 15% ширины области. Случайный поиск получает тот же бюджет вычислений.
+Выполнено {runs} независимых запусков. Конфигурации отличаются только масштабом мутации: 2% и 8% ширины области. Случайный поиск получает тот же бюджет вычислений.
 
 | Метод | Лучшее | Среднее | Медиана | Ст. отклонение | Худшее |
 |---|---:|---:|---:|---:|---:|
@@ -279,7 +281,7 @@ flowchart TD
 
 ## Вывод
 
-Функция Швефеля мультимодальна: локальные экстремумы затрудняют локальный и чисто случайный поиск. Больший масштаб мутации усиливает исследование пространства, меньший — локальное уточнение. Сравнение статистик показывает устойчивость, а не единичный удачный запуск.
+Функция HGBat невыпукла и связывает все координаты через две суммы. Больший масштаб мутации усиливает исследование пространства, меньший — локальное уточнение около найденного минимума. Сравнение статистик показывает устойчивость, а не единичный удачный запуск.
 
 Файлы: [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.csv](convergence.csv), [convergence.svg](convergence.svg).
 """
