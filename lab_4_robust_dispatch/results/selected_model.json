@@ -1,0 +1,15 @@
+{
+  "method": "GP",
+  "seed": 4180011,
+  "tree": [
+    "add",
+    [
+      "min",
+      "load",
+      "duration"
+    ],
+    "finish"
+  ],
+  "validation_quality": 55.47693848791706,
+  "size": 5
+}

@@ -1,9 +1,10 @@
-"""Автоматическая проверка комплектности и ключевых требований ЛР1–ЛР2."""
+"""Проверка сдаваемых материалов ЛР1–ЛР4 и пересчёт результатов ЛР3–ЛР4."""
 
 from __future__ import annotations
 
 import csv
 import importlib.util
+import json
 import math
 import random
 import re
@@ -38,6 +39,8 @@ def require(condition: bool, message: str) -> None:
 
 def verify_links() -> None:
     for document in ROOT.rglob("*.md"):
+        if ".git" in document.parts or "graphify-out" in document.parts:
+            continue
         text = document.read_text(encoding="utf-8")
         for target in re.findall(r"\]\(([^)#]+)(?:#[^)]+)?\)", text):
             if "://" not in target:
@@ -115,11 +118,104 @@ def verify_lab2() -> None:
     ET.parse(results / "convergence.svg")
 
 
+def verify_dispatch(lab: int) -> None:
+    import dispatch_core as core
+    folder = "lab_3_dispatch_gp" if lab == 3 else "lab_4_robust_dispatch"
+    directory = ROOT / folder
+    results = directory / "results"
+    config = json.loads((results / "config.json").read_text(encoding="utf-8"))
+    require((config["group"], config["list_number"], config["variant"]) == (517, 18, 20),
+            f"ЛР{lab}: неверный вариант")
+    dataset = core.load_dataset(directory / "data/scenarios.json")
+    generated = core.make_dataset(config["task_count"], config["uncertainty"], config["data_seed"])
+    require(dataset == generated, f"ЛР{lab}: данные не совпали с генератором и seed")
+    require({k: len(v) for k,v in dataset.items()} == {"train": 4, "validation": 4, "test": 10},
+            f"ЛР{lab}: неверное разделение данных")
+    split_seeds = [{s.seed for s in split} for split in dataset.values()]
+    require(all(not a & b for i,a in enumerate(split_seeds) for b in split_seeds[i+1:]),
+            f"ЛР{lab}: пересечение seed сценариев")
+    runs = rows(results / "runs.csv")
+    expected = 20 if lab == 3 else 30
+    methods = {m["name"]: m for m in config["methods"]}
+    require(Counter(row["method"] for row in runs) == {name: expected for name in methods},
+            f"ЛР{lab}: требуется {expected} запусков каждого метода")
+    models = json.loads((results / "models.json").read_text(encoding="utf-8"))
+    require(len(models) == len(runs), f"ЛР{lab}: неполный набор моделей")
+    for model, row in zip(models, runs):
+        require((model["method"], model["seed"]) == (row["method"], int(row["seed"])),
+                f"ЛР{lab}: модель и результат не соответствуют друг другу")
+        tree = core.freeze(model["tree"])
+        core.validate(tree, methods[row["method"]]["depth"])
+        require(core.size(tree) == int(row["size"]), f"ЛР{lab}: неверная сложность")
+        require(int(row["evaluations"]) == config["budget"], f"ЛР{lab}: нарушен бюджет")
+        require(int(row["training_simulations"]) == config["budget"]*4,
+                f"ЛР{lab}: неверное число обучающих симуляций")
+        recalculated = core.assess(tree, dataset["test"], config["risk"])
+        for metric, column in (("quality", "test_quality"), ("loss", "test_loss"),
+                               ("makespan", "test_makespan"), ("cost", "test_cost"),
+                               ("mean_tardiness", "test_tardiness"),
+                               ("late_fraction", "test_late_fraction")):
+            require(math.isclose(recalculated[metric], float(row[column]), abs_tol=1e-9),
+                    f"ЛР{lab}: тестовая метрика {metric} не воспроизведена")
+        require(math.isclose(core.assess(tree, dataset["train"], config["risk"])["quality"],
+                             float(row["train_quality"]), abs_tol=1e-9),
+                f"ЛР{lab}: обучающая оценка не воспроизведена")
+        require(math.isclose(core.assess(tree, dataset["validation"], config["risk"])["quality"],
+                             model["validation_quality"], abs_tol=1e-9),
+                f"ЛР{lab}: validation не воспроизведена")
+    import statistics
+    for item in rows(results / "summary.csv"):
+        values = [float(row["test_quality"]) for row in runs if row["method"] == item["method"]]
+        for name, value in {"best": min(values), "mean": statistics.fmean(values),
+                            "median": statistics.median(values), "std": statistics.stdev(values),
+                            "worst": max(values)}.items():
+            require(math.isclose(float(item[name]), value, abs_tol=1e-9),
+                    f"ЛР{lab}: неверная статистика {name}")
+    representatives = json.loads((results / "representatives.json").read_text(encoding="utf-8"))
+    require(len(representatives) == 3 and len({r["size"] for r in representatives}) == 3,
+            f"ЛР{lab}: нужны три эволюционировавшие программы разных сложностей")
+    for item in representatives:
+        tree = core.freeze(item["tree"])
+        core.validate(tree)
+        require(core.size(tree) == item["size"], f"ЛР{lab}: неверный размер представителя")
+        require(math.isclose(core.assess(tree, dataset["test"], config["risk"])["quality"],
+                             item["test_quality"], abs_tol=1e-9),
+                f"ЛР{lab}: представитель не воспроизведён")
+    for item in rows(results / "baselines.csv"):
+        result = core.assess(item["tree"], dataset["test"], config["risk"])
+        for metric, value in result.items():
+            require(math.isclose(float(item[metric]), value, abs_tol=1e-9),
+                    f"ЛР{lab}: baseline {item['method']} не воспроизведён")
+    selected = json.loads((results / "selected_model.json").read_text(encoding="utf-8"))
+    chosen = min(models, key=lambda m: m["validation_quality"]+config["penalty"]*m["size"])
+    require(selected == chosen, f"ЛР{lab}: модель выбрана не по validation")
+    schedule = core.simulate(core.freeze(selected["tree"]), dataset["test"][0], True)["schedule"]
+    stored = rows(results / "schedule.csv")
+    require(len(stored) == config["task_count"], f"ЛР{lab}: неполное расписание")
+    for actual, saved in zip(schedule, stored):
+        for key, value in actual.items():
+            require(math.isclose(value, float(saved[key]), abs_tol=1e-9),
+                    f"ЛР{lab}: расписание не воспроизведено")
+    for graphic in results.glob("*.svg"):
+        ET.parse(graphic)
+    histories = rows(results / "convergence.csv")
+    require(len(histories) == len(methods)*config["budget"], f"ЛР{lab}: неполные траектории")
+    for method in methods:
+        series = [r for r in histories if r["method"] == method]
+        require(all(float(r["minimum"]) <= float(r["mean"]) <= float(r["maximum"])
+                    for r in series), f"ЛР{lab}: неверные диапазоны сходимости")
+        require(all(float(b["mean"]) <= float(a["mean"])+1e-10
+                    for a,b in zip(series, series[1:])), f"ЛР{lab}: нарушен элитизм")
+
+
 def main() -> None:
     verify_links()
     verify_lab1()
     verify_lab2()
-    print("OK: вариант 20 и все проверяемые требования ЛР1–ЛР2 выполнены")
+    verify_dispatch(3)
+    verify_dispatch(4)
+    print("OK: ЛР1–ЛР4, вариант 20 — программные проверки пройдены")
+    print("ЛР4: утверждение темы преподавателем и устная защита остаются внешними условиями")
 
 
 if __name__ == "__main__":

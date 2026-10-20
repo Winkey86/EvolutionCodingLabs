@@ -1,0 +1,822 @@
+[
+  {
+    "method": "GP",
+    "seed": 4180000,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180001,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180002,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180003,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180004,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180005,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180006,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180007,
+    "tree": "load",
+    "validation_quality": 62.437127853096044,
+    "size": 1
+  },
+  {
+    "method": "GP",
+    "seed": 4180008,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180009,
+    "tree": [
+      "add",
+      "load",
+      "finish"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180010,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180011,
+    "tree": [
+      "add",
+      [
+        "min",
+        "load",
+        "duration"
+      ],
+      "finish"
+    ],
+    "validation_quality": 55.47693848791706,
+    "size": 5
+  },
+  {
+    "method": "GP",
+    "seed": 4180012,
+    "tree": [
+      "add",
+      [
+        "min",
+        0.5,
+        "late"
+      ],
+      "load"
+    ],
+    "validation_quality": 60.35662587991387,
+    "size": 5
+  },
+  {
+    "method": "GP",
+    "seed": 4180013,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180014,
+    "tree": [
+      "mul",
+      "load",
+      [
+        "max",
+        [
+          "mul",
+          "load",
+          0.25
+        ],
+        [
+          "add",
+          "cost",
+          "late"
+        ]
+      ]
+    ],
+    "validation_quality": 59.27002338552864,
+    "size": 9
+  },
+  {
+    "method": "GP",
+    "seed": 4180015,
+    "tree": [
+      "mul",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.88610781875619,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180016,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180017,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180018,
+    "tree": [
+      "mul",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.88610781875619,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180019,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180020,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180021,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180022,
+    "tree": "load",
+    "validation_quality": 62.437127853096044,
+    "size": 1
+  },
+  {
+    "method": "GP",
+    "seed": 4180023,
+    "tree": [
+      "mul",
+      "finish",
+      [
+        "add",
+        "load",
+        [
+          "min",
+          "cost",
+          "load"
+        ]
+      ]
+    ],
+    "validation_quality": 56.32196221959366,
+    "size": 7
+  },
+  {
+    "method": "GP",
+    "seed": 4180024,
+    "tree": "load",
+    "validation_quality": 62.437127853096044,
+    "size": 1
+  },
+  {
+    "method": "GP",
+    "seed": 4180025,
+    "tree": [
+      "mul",
+      "load",
+      [
+        "mul",
+        [
+          "min",
+          1.0,
+          "duration"
+        ],
+        [
+          "mul",
+          "load",
+          "finish"
+        ]
+      ]
+    ],
+    "validation_quality": 59.30190050786966,
+    "size": 9
+  },
+  {
+    "method": "GP",
+    "seed": 4180026,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180027,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "GP",
+    "seed": 4180028,
+    "tree": [
+      "add",
+      [
+        "min",
+        [
+          "max",
+          "slack",
+          0.5
+        ],
+        "load"
+      ],
+      "finish"
+    ],
+    "validation_quality": 58.80007718622112,
+    "size": 7
+  },
+  {
+    "method": "GP",
+    "seed": 4180029,
+    "tree": [
+      "sub",
+      "load",
+      [
+        "div",
+        "late",
+        "slack"
+      ]
+    ],
+    "validation_quality": 57.099716989570055,
+    "size": 5
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180000,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180001,
+    "tree": [
+      "mul",
+      [
+        "sub",
+        [
+          "max",
+          [
+            "sub",
+            "load",
+            1.0
+          ],
+          1.0
+        ],
+        [
+          "mul",
+          "finish",
+          [
+            "mul",
+            0.5,
+            0.25
+          ]
+        ]
+      ],
+      [
+        "mul",
+        [
+          "mul",
+          1.0,
+          "load"
+        ],
+        "duration"
+      ]
+    ],
+    "validation_quality": 58.65102735536712,
+    "size": 17
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180002,
+    "tree": [
+      "add",
+      "load",
+      "finish"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180003,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180004,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180005,
+    "tree": [
+      "mul",
+      [
+        "sub",
+        1.0,
+        "slack"
+      ],
+      [
+        "mul",
+        "cost",
+        "load"
+      ]
+    ],
+    "validation_quality": 58.95137060779349,
+    "size": 7
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180006,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180007,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180008,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180009,
+    "tree": [
+      "sub",
+      "load",
+      [
+        "div",
+        "late",
+        "slack"
+      ]
+    ],
+    "validation_quality": 57.099716989570055,
+    "size": 5
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180010,
+    "tree": "load",
+    "validation_quality": 62.437127853096044,
+    "size": 1
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180011,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180012,
+    "tree": [
+      "add",
+      "load",
+      "finish"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180013,
+    "tree": "load",
+    "validation_quality": 62.437127853096044,
+    "size": 1
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180014,
+    "tree": [
+      "mul",
+      2.0,
+      [
+        "mul",
+        "load",
+        "duration"
+      ]
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 5
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180015,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180016,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180017,
+    "tree": [
+      "mul",
+      [
+        "mul",
+        "duration",
+        "load"
+      ],
+      [
+        "min",
+        0.5,
+        [
+          "sub",
+          [
+            "add",
+            "load",
+            1.0
+          ],
+          "slack"
+        ]
+      ]
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 11
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180018,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180019,
+    "tree": [
+      "mul",
+      "load",
+      "finish"
+    ],
+    "validation_quality": 60.88610781875619,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180020,
+    "tree": [
+      "mul",
+      [
+        "mul",
+        [
+          "min",
+          "duration",
+          "load"
+        ],
+        "finish"
+      ],
+      "finish"
+    ],
+    "validation_quality": 57.5080133115663,
+    "size": 7
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180021,
+    "tree": [
+      "mul",
+      "load",
+      "duration"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180022,
+    "tree": [
+      "add",
+      0.25,
+      [
+        "add",
+        [
+          "add",
+          [
+            "add",
+            0.25,
+            "finish"
+          ],
+          0.5
+        ],
+        [
+          "min",
+          [
+            "sub",
+            0.5,
+            "slack"
+          ],
+          "load"
+        ]
+      ]
+    ],
+    "validation_quality": 56.48313048437715,
+    "size": 13
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180023,
+    "tree": [
+      "div",
+      "load",
+      [
+        "div",
+        0.5,
+        "duration"
+      ]
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 5
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180024,
+    "tree": [
+      "mul",
+      [
+        "min",
+        2.0,
+        "duration"
+      ],
+      [
+        "add",
+        "load",
+        "load"
+      ]
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 7
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180025,
+    "tree": [
+      "mul",
+      0.5,
+      [
+        "max",
+        [
+          "sub",
+          "late",
+          [
+            "sub",
+            "duration",
+            "finish"
+          ]
+        ],
+        [
+          "min",
+          [
+            "sub",
+            2.0,
+            "late"
+          ],
+          [
+            "div",
+            "load",
+            1.0
+          ]
+        ]
+      ]
+    ],
+    "validation_quality": 61.1919763921804,
+    "size": 15
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180026,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180027,
+    "tree": [
+      "mul",
+      "duration",
+      "load"
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180028,
+    "tree": [
+      "add",
+      "finish",
+      "load"
+    ],
+    "validation_quality": 60.86179805312,
+    "size": 3
+  },
+  {
+    "method": "Memetic_GP",
+    "seed": 4180029,
+    "tree": [
+      "mul",
+      "load",
+      [
+        "add",
+        "duration",
+        "duration"
+      ]
+    ],
+    "validation_quality": 57.67806622463693,
+    "size": 5
+  }
+]

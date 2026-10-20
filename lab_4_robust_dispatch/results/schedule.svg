@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="430" viewBox="0 0 1000 430">
+<rect width="100%" height="100%" fill="white"/>
+<text x="500" y="30" text-anchor="middle" font-family="sans-serif" font-size="21">ЛР4: расписание на первом тестовом сценарии</text>
+<text x="15" y="85" font-family="sans-serif" font-size="14">Агент 0</text>
+<text x="15" y="140" font-family="sans-serif" font-size="14">Агент 1</text>
+<text x="15" y="195" font-family="sans-serif" font-size="14">Агент 2</text>
+<text x="15" y="250" font-family="sans-serif" font-size="14">Агент 3</text>
+<text x="15" y="305" font-family="sans-serif" font-size="14">Агент 4</text>
+<rect x="105.61" y="230" width="92.92" height="35" fill="#ea580c" stroke="white"><title>Задача 0: 0.35–6.07; срок 15.68</title></rect>
+<rect x="119.63" y="120" width="122.03" height="35" fill="#059669" stroke="white"><title>Задача 1: 1.21–8.72; срок 12.09</title></rect>
+<rect x="127.25" y="285" width="42.96" height="35" fill="#ea580c" stroke="white"><title>Задача 2: 1.68–4.32; срок 12.61</title></rect>
+<rect x="142.54" y="175" width="81.17" height="35" fill="#2563eb" stroke="white"><title>Задача 3: 2.62–7.62; срок 11.74</title></rect>
+<rect x="156.28" y="65" width="48.48" height="35" fill="#059669" stroke="white"><title>Задача 4: 3.47–6.45; срок 12.70</title></rect>
+<rect x="198.53" y="230" width="102.47" height="35" fill="#2563eb" stroke="white"><title>Задача 5: 6.07–12.38; срок 20.00</title></rect>
+<rect x="179.83" y="285" width="79.08" height="35" fill="#2563eb" stroke="white"><title>Задача 6: 4.92–9.79; срок 13.13</title></rect>
+<rect x="223.71" y="175" width="135.77" height="35" fill="#ea580c" stroke="white"><title>Задача 7: 7.62–15.98; срок 20.46</title></rect>
+<rect x="301.01" y="230" width="112.43" height="35" fill="#ea580c" stroke="white"><title>Задача 8: 12.38–19.30; срок 21.54</title></rect>
+<rect x="209.44" y="65" width="83.15" height="35" fill="#ea580c" stroke="white"><title>Задача 9: 6.74–11.86; срок 15.48</title></rect>
+<rect x="258.91" y="285" width="52.52" height="35" fill="#ea580c" stroke="white"><title>Задача 10: 9.79–13.02; срок 17.24</title></rect>
+<rect x="241.65" y="120" width="138.48" height="35" fill="#2563eb" stroke="white"><title>Задача 11: 8.72–17.25; срок 20.58</title></rect>
+<rect x="311.43" y="285" width="30.14" height="35" fill="#ea580c" stroke="white"><title>Задача 12: 13.02–14.88; срок 16.27</title></rect>
+<rect x="413.43" y="230" width="27.63" height="35" fill="#2563eb" stroke="white"><title>Задача 13: 19.30–21.01; срок 22.48</title></rect>
+<rect x="292.59" y="65" width="98.62" height="35" fill="#2563eb" stroke="white"><title>Задача 14: 11.86–17.94; срок 23.96</title></rect>
+<rect x="380.13" y="120" width="133.25" height="35" fill="#059669" stroke="white"><title>Задача 15: 17.25–25.46; срок 24.86</title></rect>
+<rect x="391.21" y="65" width="131.71" height="35" fill="#059669" stroke="white"><title>Задача 16: 17.94–26.05; срок 23.40</title></rect>
+<rect x="341.57" y="285" width="33.53" height="35" fill="#ea580c" stroke="white"><title>Задача 17: 14.88–16.94; срок 18.86</title></rect>
+<rect x="513.38" y="120" width="34.69" height="35" fill="#059669" stroke="white"><title>Задача 18: 25.46–27.60; срок 26.92</title></rect>
+<rect x="359.48" y="175" width="18.19" height="35" fill="#ea580c" stroke="white"><title>Задача 19: 15.98–17.10; срок 23.93</title></rect>
+<rect x="548.07" y="120" width="26.97" height="35" fill="#059669" stroke="white"><title>Задача 20: 27.60–29.26; срок 24.10</title></rect>
+<rect x="575.04" y="120" width="99.42" height="35" fill="#059669" stroke="white"><title>Задача 21: 29.26–35.38; срок 22.84</title></rect>
+<rect x="441.06" y="230" width="17.64" height="35" fill="#ea580c" stroke="white"><title>Задача 22: 21.01–22.09; срок 26.25</title></rect>
+<rect x="522.92" y="65" width="70.45" height="35" fill="#059669" stroke="white"><title>Задача 23: 26.05–30.39; срок 25.08</title></rect>
+<rect x="375.10" y="285" width="57.59" height="35" fill="#2563eb" stroke="white"><title>Задача 24: 16.94–20.49; срок 26.89</title></rect>
+<rect x="674.46" y="120" width="67.10" height="35" fill="#059669" stroke="white"><title>Задача 25: 35.38–39.51; срок 21.84</title></rect>
+<rect x="377.67" y="175" width="47.09" height="35" fill="#2563eb" stroke="white"><title>Задача 26: 17.10–20.00; срок 23.39</title></rect>
+<rect x="458.71" y="230" width="36.33" height="35" fill="#2563eb" stroke="white"><title>Задача 27: 22.09–24.33; срок 22.50</title></rect>
+<rect x="593.37" y="65" width="75.40" height="35" fill="#059669" stroke="white"><title>Задача 28: 30.39–35.03; срок 24.06</title></rect>
+<rect x="495.04" y="230" width="12.69" height="35" fill="#2563eb" stroke="white"><title>Задача 29: 24.33–25.11; срок 31.63</title></rect>
+<rect x="507.73" y="230" width="7.54" height="35" fill="#2563eb" stroke="white"><title>Задача 30: 25.11–25.58; срок 28.85</title></rect>
+<rect x="432.69" y="285" width="26.07" height="35" fill="#2563eb" stroke="white"><title>Задача 31: 20.49–22.10; срок 24.96</title></rect>
+<rect x="515.27" y="230" width="13.64" height="35" fill="#ea580c" stroke="white"><title>Задача 32: 25.58–26.42; срок 34.59</title></rect>
+<rect x="458.76" y="285" width="14.44" height="35" fill="#2563eb" stroke="white"><title>Задача 33: 22.10–22.99; срок 27.49</title></rect>
+<rect x="528.91" y="230" width="51.48" height="35" fill="#2563eb" stroke="white"><title>Задача 34: 26.42–29.59; срок 31.54</title></rect>
+<rect x="473.20" y="285" width="36.26" height="35" fill="#2563eb" stroke="white"><title>Задача 35: 22.99–25.22; срок 31.92</title></rect>
+<rect x="430.46" y="175" width="48.46" height="35" fill="#ea580c" stroke="white"><title>Задача 36: 20.35–23.34; срок 32.94</title></rect>
+<rect x="509.46" y="285" width="57.49" height="35" fill="#2563eb" stroke="white"><title>Задача 37: 25.22–28.76; срок 30.62</title></rect>
+<rect x="668.77" y="65" width="108.80" height="35" fill="#059669" stroke="white"><title>Задача 38: 35.03–41.73; срок 33.01</title></rect>
+<rect x="580.39" y="230" width="26.70" height="35" fill="#ea580c" stroke="white"><title>Задача 39: 29.59–31.23; срок 27.91</title></rect>
+<rect x="741.56" y="120" width="16.85" height="35" fill="#059669" stroke="white"><title>Задача 40: 39.51–40.55; срок 36.24</title></rect>
+<rect x="607.09" y="230" width="64.55" height="35" fill="#2563eb" stroke="white"><title>Задача 41: 31.23–35.21; срок 32.63</title></rect>
+<rect x="758.41" y="120" width="29.99" height="35" fill="#059669" stroke="white"><title>Задача 42: 40.55–42.40; срок 39.15</title></rect>
+<rect x="788.40" y="120" width="17.16" height="35" fill="#059669" stroke="white"><title>Задача 43: 42.40–43.46; срок 33.66</title></rect>
+<rect x="805.56" y="120" width="164.44" height="35" fill="#059669" stroke="white"><title>Задача 44: 43.46–53.58; срок 36.04</title></rect>
+<rect x="566.94" y="285" width="32.49" height="35" fill="#ea580c" stroke="white"><title>Задача 45: 28.76–30.76; срок 36.58</title></rect>
+<rect x="533.42" y="175" width="128.56" height="35" fill="#2563eb" stroke="white"><title>Задача 46: 26.69–34.61; срок 36.32</title></rect>
+<rect x="599.43" y="285" width="71.26" height="35" fill="#2563eb" stroke="white"><title>Задача 47: 30.76–35.15; срок 39.85</title></rect>
+<text x="100" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">0.0</text>
+<text x="274" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">10.7</text>
+<text x="448" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">21.4</text>
+<text x="622" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">32.2</text>
+<text x="796" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">42.9</text>
+<text x="970" y="365" text-anchor="middle" font-family="sans-serif" font-size="14">53.6</text>
+<text x="500" y="405" text-anchor="middle" font-family="sans-serif" font-size="16">Время, условные единицы; цвет — требуемый навык</text>
+</svg>

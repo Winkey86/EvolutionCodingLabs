@@ -1,0 +1,142 @@
+[
+  {
+    "label": "compact",
+    "tree": "load",
+    "size": 1,
+    "train_quality": 75.6383612704319,
+    "validation_quality": 62.437127853096044,
+    "method": "GP",
+    "seed": 4180000,
+    "expression": "load",
+    "test_quality": 58.397284065203266,
+    "test_loss": 53.66303585428377,
+    "test_makespan": 39.860301020792576,
+    "test_mean_tardiness": 0.7721050946158075,
+    "test_cost": 214.28628910055915,
+    "test_late_fraction": 0.18541666666666667
+  },
+  {
+    "label": "medium",
+    "tree": [
+      "mul",
+      [
+        "add",
+        [
+          "add",
+          "load",
+          0.25
+        ],
+        2.0
+      ],
+      [
+        "max",
+        [
+          "add",
+          [
+            "mul",
+            1.0,
+            "late"
+          ],
+          0.5
+        ],
+        [
+          "sub",
+          [
+            "min",
+            0.5,
+            "late"
+          ],
+          "late"
+        ]
+      ]
+    ],
+    "size": 17,
+    "train_quality": 77.11950901092092,
+    "validation_quality": 57.78760009749561,
+    "method": "GP",
+    "seed": 4180006,
+    "expression": "mul(add(add(load, 0.25), 2.0), max(add(mul(1.0, late), 0.5), sub(min(0.5, late), late)))",
+    "test_quality": 59.31809419654419,
+    "test_loss": 54.49348516201478,
+    "test_makespan": 40.598081265187915,
+    "test_mean_tardiness": 0.7986627638171814,
+    "test_cost": 214.01505683116278,
+    "test_late_fraction": 0.18958333333333333
+  },
+  {
+    "label": "complex",
+    "tree": [
+      "mul",
+      [
+        "min",
+        [
+          "add",
+          [
+            "mul",
+            0.5,
+            "slack"
+          ],
+          [
+            "add",
+            0.25,
+            "load"
+          ]
+        ],
+        [
+          "mul",
+          [
+            "div",
+            "cost",
+            1.0
+          ],
+          [
+            "add",
+            "load",
+            1.0
+          ]
+        ]
+      ],
+      [
+        "add",
+        [
+          "min",
+          [
+            "add",
+            "load",
+            "slack"
+          ],
+          [
+            "sub",
+            "load",
+            "duration"
+          ]
+        ],
+        [
+          "sub",
+          [
+            "add",
+            "load",
+            "load"
+          ],
+          [
+            "sub",
+            "duration",
+            "finish"
+          ]
+        ]
+      ]
+    ],
+    "size": 31,
+    "train_quality": 74.73829787197973,
+    "validation_quality": 66.93823249433666,
+    "method": "Memetic_GP",
+    "seed": 4180017,
+    "expression": "mul(min(add(mul(0.5, slack), add(0.25, load)), mul(div(cost, 1.0), add(load, 1.0))), add(min(add(load, slack), sub(load, duration)), sub(add(load, load), sub(duration, finish))))",
+    "test_quality": 62.89800639383858,
+    "test_loss": 57.37683581015607,
+    "test_makespan": 42.273713730951044,
+    "test_mean_tardiness": 1.0339141154868838,
+    "test_cost": 219.3493123451496,
+    "test_late_fraction": 0.19791666666666669
+  }
+]

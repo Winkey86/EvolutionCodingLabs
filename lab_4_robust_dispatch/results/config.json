@@ -1,0 +1,34 @@
+{
+  "lab": 4,
+  "runs": 30,
+  "budget": 640,
+  "population": 32,
+  "task_count": 48,
+  "uncertainty": 0.35,
+  "data_seed": 4201800,
+  "risk": 0.5,
+  "penalty": 0.2,
+  "methods": [
+    {
+      "name": "GP",
+      "depth": 4,
+      "memetic": false
+    },
+    {
+      "name": "Memetic_GP",
+      "depth": 4,
+      "memetic": true
+    }
+  ],
+  "group": 517,
+  "list_number": 18,
+  "variant": 20,
+  "crossover_probability": 0.85,
+  "mutation_probability": 0.35,
+  "local_search_probability": 0.4,
+  "split_sizes": {
+    "train": 4,
+    "validation": 4,
+    "test": 10
+  }
+}

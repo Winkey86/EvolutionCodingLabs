@@ -1,0 +1,7 @@
+{
+  "method": "GP_depth_1",
+  "seed": 3180000,
+  "tree": "finish",
+  "validation_quality": 27.354051125240435,
+  "size": 1
+}

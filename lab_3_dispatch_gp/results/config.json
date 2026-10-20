@@ -1,0 +1,39 @@
+{
+  "lab": 3,
+  "runs": 20,
+  "budget": 480,
+  "population": 32,
+  "task_count": 24,
+  "uncertainty": 0.0,
+  "data_seed": 3201800,
+  "risk": 0.0,
+  "penalty": 0.2,
+  "methods": [
+    {
+      "name": "GP_depth_1",
+      "depth": 1,
+      "memetic": false
+    },
+    {
+      "name": "GP_depth_2",
+      "depth": 2,
+      "memetic": false
+    },
+    {
+      "name": "GP_depth_4",
+      "depth": 4,
+      "memetic": false
+    }
+  ],
+  "group": 517,
+  "list_number": 18,
+  "variant": 20,
+  "crossover_probability": 0.85,
+  "mutation_probability": 0.35,
+  "local_search_probability": 0.4,
+  "split_sizes": {
+    "train": 4,
+    "validation": 4,
+    "test": 10
+  }
+}
