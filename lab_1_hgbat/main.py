@@ -132,19 +132,25 @@ def genetic_algorithm(config: Config, evaluations_limit: int, seed: int) -> RunR
     )
 
 
-def random_search(evaluations_limit: int, seed: int) -> RunResult:
+def random_search(
+    evaluations_limit: int, seed: int, checkpoints: Sequence[int] | None = None
+) -> RunResult:
     rng = random.Random(seed)
     started = time.perf_counter()
     best_value = math.inf
     best_vector: list[float] = []
-    for _ in range(evaluations_limit):
+    trajectory = []
+    checkpoints = set(checkpoints) if checkpoints is not None else {evaluations_limit}
+    for evaluations in range(1, evaluations_limit + 1):
         vector = [rng.uniform(LOWER_BOUND, UPPER_BOUND) for _ in range(DIMENSION)]
         value = hgbat(vector)
         if value < best_value:
             best_value, best_vector = value, vector
+        if evaluations in checkpoints:
+            trajectory.append(best_value)
     return RunResult(
         "random_search", seed, best_value, best_vector, evaluations_limit,
-        time.perf_counter() - started, [best_value]
+        time.perf_counter() - started, trajectory
     )
 
 
@@ -203,6 +209,57 @@ def summarize(values: Sequence[float]) -> tuple[float, float, float, float, floa
     return min(values), statistics.fmean(values), statistics.median(values), statistics.stdev(values), max(values)
 
 
+def write_comparison_svg(
+    path: Path, checkpoints: Sequence[int], series: dict[str, Sequence[float]], runs: int
+) -> None:
+    width, height = 1100, 650
+    left, right, top, bottom = 100, 35, 100, 125
+    values = [value for trajectory in series.values() for value in trajectory]
+    log_min = math.floor(math.log10(max(min(values), 1e-12)))
+    log_max = max(log_min + 1, math.ceil(math.log10(max(values))))
+    plot_w, plot_h = width - left - right, height - top - bottom
+
+    def x(evaluations: int) -> float:
+        return left + evaluations / checkpoints[-1] * plot_w
+
+    def y(value: float) -> float:
+        return top + (log_max - math.log10(max(value, 1e-12))) / (log_max - log_min) * plot_h
+
+    parts = [
+        f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}">',
+        '<rect width="100%" height="100%" fill="white"/>',
+        '<g font-family="sans-serif" fill="#172033">',
+        '<text x="550" y="35" text-anchor="middle" font-size="22" font-weight="bold">HGBat: две настройки ГА и случайный поиск</text>',
+        f'<text x="550" y="65" text-anchor="middle" font-size="15">Средние траектории по {runs} независимым запускам каждого метода</text>',
+    ]
+    for power in range(log_min, log_max + 1):
+        value = 10 ** power
+        yy = y(value)
+        parts.extend([
+            f'<line x1="{left}" y1="{yy:.2f}" x2="{width-right}" y2="{yy:.2f}" stroke="#dce3ec"/>',
+            f'<text x="{left-12}" y="{yy+5:.2f}" text-anchor="end" font-size="14">{value:g}</text>',
+        ])
+    for tick in range(7):
+        evaluations = round(tick * checkpoints[-1] / 6)
+        xx = x(evaluations)
+        parts.append(f'<text x="{xx:.2f}" y="{height-bottom+28}" text-anchor="middle" font-size="14">{evaluations}</text>')
+    parts.append(f'<path d="M{left},{top}V{height-bottom}H{width-right}" stroke="#526071" fill="none"/>')
+    for index, ((label, trajectory), color) in enumerate(zip(series.items(), ("#2563eb", "#e07816", "#7c3aed"))):
+        points = " ".join(f"{x(n):.2f},{y(value):.2f}" for n, value in zip(checkpoints, trajectory))
+        parts.append(f'<polyline points="{points}" fill="none" stroke="{color}" stroke-width="2.8"/>')
+        legend_x = left + index * 320
+        parts.extend([
+            f'<line x1="{legend_x}" y1="615" x2="{legend_x+30}" y2="615" stroke="{color}" stroke-width="3"/>',
+            f'<text x="{legend_x+40}" y="620" font-size="15">{label}</text>',
+        ])
+    parts.extend([
+        '<text x="580" y="585" text-anchor="middle" font-size="16">Число вычислений целевой функции</text>',
+        '<text x="25" y="315" transform="rotate(-90 25 315)" text-anchor="middle" font-size="15">Среднее лучшее f(x), логарифмическая шкала</text>',
+        '</g></svg>',
+    ])
+    path.write_text("\n".join(parts), encoding="utf-8")
+
+
 def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
     if runs < 20:
         raise ValueError("По ТЗ требуется не менее 20 независимых запусков")
@@ -231,7 +288,12 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
             genetic_algorithm(config, evaluations_limit, 60_000 + config_index * 1_000 + run)
             for run in range(runs)
         ]
-    by_method["random_search"] = [random_search(evaluations_limit, 90_000 + run) for run in range(runs)]
+    # У ГА сначала оцениваются 60 особей, затем по 59 новых (элита переносится).
+    checkpoints = list(range(configs[0].population_size, evaluations_limit,
+                             configs[0].population_size - 1)) + [evaluations_limit]
+    by_method["random_search"] = [
+        random_search(evaluations_limit, 90_000 + run, checkpoints) for run in range(runs)
+    ]
 
     run_rows = []
     for method, results in by_method.items():
@@ -250,6 +312,22 @@ def run_experiment(runs: int, evaluations_limit: int, output: Path) -> None:
     maximum = [max(column) for column in columns]
     write_csv(output / "convergence.csv", ["generation", "minimum", "mean", "maximum"], [[index, minimum[index], mean[index], maximum[index]] for index in range(length)])
     write_svg(output / "convergence.svg", minimum, mean, maximum)
+
+    comparison_rows = []
+    comparison_series = {}
+    labels = {"GA_sigma_2pct": "ГА: масштаб мутации 2%",
+              "GA_sigma_8pct": "ГА: масштаб мутации 8%",
+              "random_search": "Случайный поиск"}
+    for method, results in by_method.items():
+        trajectory = []
+        for index, evaluations in enumerate(checkpoints):
+            values = [result.trajectory[index] for result in results]
+            average = statistics.fmean(values)
+            trajectory.append(average)
+            comparison_rows.append([method, evaluations, min(values), average, max(values)])
+        comparison_series[labels[method]] = trajectory
+    write_csv(output / "comparison.csv", ["method", "evaluations", "minimum", "mean", "maximum"], comparison_rows)
+    write_comparison_svg(output / "comparison.svg", checkpoints, comparison_series, runs)
 
     best = min((result for method, results in by_method.items() if method != "random_search" for result in results), key=lambda result: result.value)
     means = {method: statistics.fmean(result.value for result in results)
@@ -306,6 +384,14 @@ flowchart TD
 |---|---:|---:|---:|---:|---:|
 {table}
 
+### Сравнительный график
+
+На общем графике сравниваются две конфигурации ГА, отличающиеся только масштабом мутации (2% и 8%), и случайный поиск. Каждая кривая показывает среднее лучшего найденного значения по {runs} независимым запускам. По горизонтали отложено число вычислений функции: методы сравниваются при одинаковых затратах, включая начальную популяцию. Итоговый бюджет каждого запуска — {evaluations_limit} вычислений. Вертикальная шкала логарифмическая, чтобы были различимы результаты всех трёх методов; меньшее значение лучше.
+
+![Сравнение двух конфигураций ГА и случайного поиска](comparison.svg)
+
+Исходные значения, включая минимум и максимум по серии: [comparison.csv](comparison.csv).
+
 Лучший результат ГА: `{best.value:.12g}` при `x={ [round(value, 7) for value in best.vector] }`.
 
 ## Вывод
@@ -314,7 +400,7 @@ flowchart TD
 
 Масштаб 8% дал среднее значение на `{mutation_improvement:.1f}%` лучше масштаба 2%. Его средний результат лучше случайного поиска примерно в `{random_factor:.1f}` раза. Лучшее значение `{best.value:.6g}` имеет абсолютный разрыв `{best.value:.6g}` до известного оптимума 0: это хороший приближённый результат при заданном бюджете, но не доказательство достижения точного минимума. Вывод подтверждается серией запусков, а не единственной удачной траекторией.
 
-Файлы: [parameters.csv](parameters.csv), [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.csv](convergence.csv), [convergence.svg](convergence.svg).
+Файлы: [parameters.csv](parameters.csv), [runs.csv](runs.csv), [summary.csv](summary.csv), [convergence.csv](convergence.csv), [convergence.svg](convergence.svg), [comparison.csv](comparison.csv), [comparison.svg](comparison.svg).
 """
     (output / "REPORT.md").write_text(report, encoding="utf-8")
 

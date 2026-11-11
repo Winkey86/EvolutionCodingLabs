@@ -37,3 +37,5 @@ python3 main.py --runs 20 --evaluations 12000 --output results
 - [Результаты всех запусков](results/runs.csv)
 - [Сводная статистика](results/summary.csv)
 - [График сходимости](results/convergence.svg)
+- [Сравнение двух конфигураций ГА и случайного поиска](results/comparison.svg)
+- [Данные сравнительного графика](results/comparison.csv)
