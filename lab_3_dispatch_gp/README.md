@@ -10,7 +10,7 @@
 
 ```bash
 python3 lab_3_dispatch_gp/main.py
-python3 -m unittest test_dispatch -v
+python3 -m unittest test_dispatch lab_3_dispatch_gp.test_report -v
 python3 verify.py
 ```
 
@@ -32,5 +32,8 @@ python3 lab_3_dispatch_gp/main.py --runs 20 --budget 480
 - [Сравнение с ручными правилами](results/baselines.csv)
 - [Графики сходимости](results/convergence.svg) и [качества/сложности](results/quality_complexity.svg)
 - [Выбранная модель](results/selected_model.json) и [визуализация расписания](results/schedule.svg)
+- [Численный пример декодирования правила в выбор агента](results/decoding_example.csv)
 
 Модель для демонстрации выбирается по validation. Тестовые данные не участвуют в эволюции и выборе модели.
+
+В начале отчёта есть таблица соответствия пунктам 1.4 ТЗ. В тексте показаны генотип и фенотип, пооперационный разбор выбора агента, обоснование операторов и расчёт валидационного критерия для трёх программ. Отдельно объяснены нулевой разброс итогового Q и отсутствие подтверждённого превосходства над ручным правилом `finish`.

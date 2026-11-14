@@ -1,0 +1,10 @@
+{
+  "relaxation": "drop budget and daily calories; keep meal types, repetition limit and diversity",
+  "upper_bound": 1936,
+  "best_utility": 1936,
+  "best_feasible": true,
+  "certified_optimal": true,
+  "days": 7,
+  "minimum_unique": 15,
+  "maximum_repetitions": 2
+}

@@ -8,6 +8,7 @@ import json
 import math
 import random
 import re
+import statistics
 import sys
 import xml.etree.ElementTree as ET
 from collections import Counter
@@ -110,6 +111,26 @@ def verify_lab2() -> None:
         require(module.MIN_DAILY_CALORIES <= calories <= module.MAX_DAILY_CALORIES,
                 f"ЛР2: нарушена калорийность дня {day + 1}")
 
+    upper_bound = module.utility_upper_bound(dishes)
+    certificate = json.loads((results / "optimality.json").read_text(encoding="utf-8"))
+    require(certificate["upper_bound"] == upper_bound, "ЛР2: неверная верхняя граница")
+    best_utility = sum(int(row["score"]) for row in menu)
+    require(certificate["certified_optimal"] and best_utility == upper_bound,
+            "ЛР2: оптимальность сохранённого меню не подтверждена")
+    for record in rows(results / "summary.csv"):
+        group = [row for row in runs if row["method"] == record["method"]]
+        fitness = [float(row["fitness"]) for row in group]
+        expected = {"best_fitness": min(fitness), "mean_fitness": statistics.fmean(fitness),
+                    "median_fitness": statistics.median(fitness), "std_fitness": statistics.stdev(fitness),
+                    "worst_fitness": max(fitness),
+                    "mean_seconds": statistics.fmean(float(row["seconds"]) for row in group),
+                    "mean_evaluations": statistics.fmean(int(row["evaluations"]) for row in group),
+                    "optimal_rate": sum(row["feasible"] == "True" and int(row["utility"]) == upper_bound
+                                        for row in group) / len(group)}
+        for key, value in expected.items():
+            require(math.isclose(float(record[key]), value, abs_tol=1e-9),
+                    f"ЛР2: неверная сводная метрика {key}")
+
     examples = rows(results / "feasibility_examples.csv")
     require([row["feasible"] for row in examples].count("True") == 2,
             "ЛР2: нужны два допустимых примера")
@@ -163,7 +184,6 @@ def verify_dispatch(lab: int) -> None:
         require(math.isclose(core.assess(tree, dataset["validation"], config["risk"])["quality"],
                              model["validation_quality"], abs_tol=1e-9),
                 f"ЛР{lab}: validation не воспроизведена")
-    import statistics
     for item in rows(results / "summary.csv"):
         values = [float(row["test_quality"]) for row in runs if row["method"] == item["method"]]
         for name, value in {"best": min(values), "mean": statistics.fmean(values),
@@ -190,6 +210,13 @@ def verify_dispatch(lab: int) -> None:
     chosen = min(models, key=lambda m: m["validation_quality"]+config["penalty"]*m["size"])
     require(selected == chosen, f"ЛР{lab}: модель выбрана не по validation")
     schedule = core.simulate(core.freeze(selected["tree"]), dataset["test"][0], True)["schedule"]
+    if lab == 3:
+        decoded = rows(results / "decoding_example.csv")
+        selected_rows = [row for row in decoded if row["selected"] == "True"]
+        require(len(selected_rows) == 1 and int(selected_rows[0]["agent"]) == schedule[0]["agent"],
+                "ЛР3: пример декодирования не соответствует расписанию")
+        require(float(selected_rows[0]["priority"]) == min(float(row["priority"]) for row in decoded),
+                "ЛР3: в примере выбран не минимальный приоритет")
     stored = rows(results / "schedule.csv")
     require(len(stored) == config["task_count"], f"ЛР{lab}: неполное расписание")
     for actual, saved in zip(schedule, stored):
